@@ -1,0 +1,42 @@
+{
+  "name": "TOEIC Quest 多益冒險島",
+  "short_name": "TOEIC Quest",
+  "description": "遊戲化多益英文學習：單字字根字首字尾、文法迷宮、好友對決、每日獎勵",
+  "lang": "zh-TW",
+  "dir": "ltr",
+  "start_url": "./index.html",
+  "scope": "./",
+  "id": "toeic-quest",
+  "display": "standalone",
+  "display_override": ["standalone", "minimal-ui"],
+  "background_color": "#0f0c29",
+  "theme_color": "#7c3aed",
+  "orientation": "portrait",
+  "categories": ["education", "games"],
+  "icons": [
+    {
+      "src": "icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}

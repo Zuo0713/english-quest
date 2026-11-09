@@ -1,0 +1,15 @@
+# 帳號資料庫（含密碼雜湊與使用者進度，絕不上傳）
+data/
+*.db.json
+
+# Node
+node_modules/
+npm-debug.log*
+
+# 系統
+.DS_Store
+Thumbs.db
+
+# 編輯器
+.vscode/
+.idea/
