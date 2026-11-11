@@ -1,5 +1,5 @@
-/* English Quest Service Worker — 離線快取 v3 */
-const CACHE = "englishquest-v3";
+/* English Quest Service Worker — 離線快取 v4（語音修復） */
+const CACHE = "englishquest-v4";
 const ASSETS = [
   "./",
   "./index.html",

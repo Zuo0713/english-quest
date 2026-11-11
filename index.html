@@ -1594,16 +1594,99 @@ function toast(msg,emoji){
   t.classList.add("show");
   clearTimeout(t._h);t._h=setTimeout(function(){t.classList.remove("show")},2400);
 }
+/* ===== 語音：Android/iOS 修復（手勢解鎖＋voices 非同步＋失敗重試） ===== */
+const SP={unlocked:false,pending:null,voices:[],loaded:false,noEn:false,hintTap:false,hintNoEn:false};
+function spLoadVoices(){
+  if(!("speechSynthesis" in window))return;
+  try{
+    const vs=speechSynthesis.getVoices()||[];
+    if(vs.length){
+      SP.voices=vs;SP.loaded=true;
+      SP.noEn=!vs.some(function(x){return /^en/i.test(x.lang)});
+    }
+  }catch(e){}
+}
+function spVoice(){
+  const vs=SP.voices.length?SP.voices:(speechSynthesis.getVoices()||[]);
+  return vs.find(function(x){return /^en[-_]US/i.test(x.lang)})||vs.find(function(x){return /^en/i.test(x.lang)})||null;
+}
+function spUnlock(){
+  if(SP.unlocked)return;
+  SP.unlocked=true;
+  try{ // 靜音 utterance：解除 iOS/Android 自動播放鎖
+    const s=new SpeechSynthesisUtterance(" ");
+    s.volume=0;s.rate=10;
+    speechSynthesis.speak(s);
+  }catch(e){}
+  try{ // 同步解鎖 AudioContext（音效用）
+    const AC=window.AudioContext||window.webkitAudioContext;
+    if(AC){
+      if(!SP.ac)SP.ac=new AC();
+      if(SP.ac.state==="suspended")SP.ac.resume();
+    }
+  }catch(e){}
+  if(SP.pending!=null){const t=SP.pending;SP.pending=null;setTimeout(function(){spFire(t,0);},150);}
+}
+function spFire(text,att){
+  try{speechSynthesis.cancel();}catch(e){}
+  setTimeout(function(){ // Chrome Android：cancel() 後立即 speak 會無聲 → 間隔再播
+    let done=false,started=false;
+    const u=new SpeechSynthesisUtterance(text);
+    u.lang="en-US";u.rate=.92;
+    const v=spVoice();
+    if(v)u.voice=v;
+    u.onstart=function(){started=true;};
+    u.onend=function(){done=true;};
+    u.onerror=function(ev){
+      if(done)return;done=true;
+      const err=ev&&ev.error;
+      if(err==="interrupted"||err==="canceled")return;
+      if(err==="not-allowed"){ // 仍未解鎖 → 排隊等手勢
+        SP.unlocked=false;SP.pending=text;
+        if(!SP.hintTap){SP.hintTap=true;toast("點一下畫面即可開啟語音 🔊","🔊");}
+        return;
+      }
+      if(att<2)setTimeout(function(){spFire(text,att+1);},250);
+    };
+    try{speechSynthesis.resume();}catch(e){}
+    try{speechSynthesis.speak(u);}catch(e){
+      if(att<2)setTimeout(function(){spFire(text,att+1);},250);
+      return;
+    }
+    setTimeout(function(){ // 500ms 後完全沒開播 → 重試（最多 2 次）
+      if(done||started||att>=2)return;
+      let speaking=false;
+      try{speaking=speechSynthesis.speaking;}catch(e){}
+      if(speaking)return; // 實際有在播，只是 onstart 沒回報
+      spFire(text,att+1);
+    },500);
+  },80);
+}
 function speak(text){
   if(!("speechSynthesis" in window))return false;
-  speechSynthesis.cancel();
-  const u=new SpeechSynthesisUtterance(text);
-  u.lang="en-US";u.rate=.92;
-  const vs=speechSynthesis.getVoices()||[];
-  const v=vs.find(function(x){return /^en[-_]US/i.test(x.lang)})||vs.find(function(x){return /^en/i.test(x.lang)});
-  if(v)u.voice=v;
-  speechSynthesis.speak(u);
+  text=String(text||"").trim();
+  if(!text)return false;
+  spLoadVoices();
+  if(SP.loaded&&SP.noEn&&!SP.hintNoEn){ // 裝置沒英文語音引擎
+    SP.hintNoEn=true;
+    toast("⚠ 系統沒有英文語音，請安裝 Google 語音合成（TTS）英文語音","🔊");
+    return false;
+  }
+  if(!SP.unlocked){ // 尚無使用者手勢 → 排隊，第一次點擊自動播出
+    SP.pending=text;
+    if(!SP.hintTap){SP.hintTap=true;toast("點一下畫面即可開啟語音 🔊","🔊");}
+    return false;
+  }
+  spFire(text,0);
   return true;
+}
+if("speechSynthesis" in window){
+  spLoadVoices();
+  try{speechSynthesis.addEventListener("voiceschanged",spLoadVoices);}catch(e){speechSynthesis.onvoiceschanged=spLoadVoices;}
+  setTimeout(spLoadVoices,600);setTimeout(spLoadVoices,1600); // Android voices 延遲載入
+  ["touchstart","touchend","mousedown","keydown","click"].forEach(function(ev){
+    document.addEventListener(ev,function(){spUnlock();},{passive:true});
+  });
 }
 function exWord(ex){return String(ex||"").split(/[、\s]+/)[0]||""}
 function confetti(n){
