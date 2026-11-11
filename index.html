@@ -1380,6 +1380,15 @@ const FAKE_RANK=[
 /* ================= 帳號系統 ================= */
 const ACCS="toeicquest_accs",SESS="toeicquest_session",GKEY="toeicquest_guest",LEGACY="toeicquest_v1",TOKEN="toeicquest_token";
 const SRV=(location.protocol==="http:"||location.protocol==="https:");
+/* 靜態托管（GitHub Pages 等）沒有後端：探測 /api/me，404/405 就退回本機帳號模式 */
+let APIDOWN=false;
+async function probeAPI(){
+  if(!SRV){APIDOWN=true;return}
+  try{
+    const r=await fetch("/api/me",{method:"GET"});
+    APIDOWN=!(r.status===401||r.status===200);   // 自家後端會回 401（未帶 token）
+  }catch(e){APIDOWN=true}
+}
 let ACC="guest",accMode="login",ONLINE=false;
 function def(){return{
   name:"英語冒險者",xp:0,coins:0,streak:0,lastClaim:"",
@@ -1509,7 +1518,7 @@ async function accSubmit(){
   btn.disabled=true;
   accMsg(accMode==="register"?"帳號建立中…":"登入中…");
   try{
-    if(SRV){
+    if(SRV&&!APIDOWN){
       try{
         // 密碼只傳給自家後端做 scrypt 驗證，伺服器不保存明碼
         const j=await api(accMode==="register"?"/api/register":"/api/login",{user:u,pass:p});
@@ -3481,8 +3490,9 @@ async function init(){
     localStorage.removeItem(LEGACY);
   }catch(e){}
   let start="scr-account";
-  // 雲端 session 還原：有 token 就跨裝置直接登入
-  if(SRV&&localStorage.getItem(TOKEN)){
+  // 雲端 session 還原：有 token 就跨裝置直接登入（靜態托管無後端時跳過）
+  await probeAPI();
+  if(SRV&&!APIDOWN&&localStorage.getItem(TOKEN)){
     try{
       const me=await api("/api/me");
       const st=await api("/api/state");
@@ -3519,6 +3529,11 @@ async function init(){
   // PWA：Service Worker 只在 http/https 下註冊（file:// 會略過）
   if((location.protocol==="http:"||location.protocol==="https:")&&"serviceWorker" in navigator){
     navigator.serviceWorker.register("sw.js").catch(function(){});
+  }
+  // 靜態托管（無後端）：提示帳號改存本機瀏覽器
+  if(APIDOWN){
+    const hint=$("acc-hint");
+    if(hint)hint.innerHTML="💾 目前為靜態版本：帳號與進度保存在<b>這台裝置的瀏覽器</b><br>註冊後請勿清除瀏覽器資料，以免進度遺失";
   }
   // 檢查網址是否含好友挑戰
   const hash=(location.hash||"").replace(/^#/,"");
