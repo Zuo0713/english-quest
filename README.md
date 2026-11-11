@@ -1,4 +1,4 @@
-# 🎮 TOEIC Quest 多益冒險島
+# 🎮 English Quest 多益冒險島
 
 遊戲化的多益英文學習應用，附 **Node.js 雲端後端**：任何人在任何裝置用同一個網址註冊登入，進度即時同步。
 
@@ -7,15 +7,23 @@
 | 模式 | 說明 |
 |------|------|
 | 📝 多益挑戰 | 聽力 + 閱讀模擬測驗（Part 1–7），限時計分 |
+| 📋 200 題全真模擬考 | **聽力 100 ＋ 閱讀 100、總時 2 小時**，每次隨機抽題（題庫 300+ 題），交卷後看總分 990、聽力／閱讀分項與完整解析 |
 | 🎧 聽力解析 | **先念一次、作答後才揭曉**：顯示原文（關鍵字圈起來）＋ 句意 ＋ 為什麼選它 |
-| 🔤 單字工廠 | ① 每日單字（配額學習＋達標考試）② 拼字遊戲 ③ 閃卡 ④ 字根樹 ⑤ 字綴總表 |
+| 🔤 單字工廠 | ① 每日單字 ② **字根分組**（同字根的字一起背）③ **12000 字表＋拼字檢查**（每字意思＋1-2 例句）④ 拼字遊戲 ⑤ 閃卡 ⑥ 字根樹 ⑦ 字綴總表 |
 | 📅 每日單字 | 設定一天背 5/10/15/20/30 個；先看**字首＋字根＋字尾組合意思**，背滿配額才解鎖 10 題考試（60 分及格） |
-| 🔊 發音 | 單字、例句、文章全站可朗讀（每日卡／閃卡／字根樹／字綴總表／測驗回饋） |
-| 📐 文法迷宮 | 12 個關卡由淺入深，規則解說 + 圖解例句，75 分解鎖下一關 |
-| ⚔️ 好友對決 | AI 三難度對戰、建立挑戰連結給朋友比分數 |
+| 📅 行事曆登入 | 每日登入改**行事曆樣式**，有登入就打勾，可翻月查看 |
+| 📐 文法迷宮 | 12 個關卡由淺入深，**每課 50 題**（簡單→困難），規則解說 + 圖解例句，75 分解鎖下一關 |
+| ⚔️ 好友對決 | 一次 **20 題隨機生成**，答錯扣自己 5 HP，最後 HP 高者獲勝；AI 三難度＝TOEIC 300／550／750 強度 |
+| 👥 UID 好友 | 每個帳號有 6 碼 UID，加好友後可看對方**等級與連續登入天數** |
 | 📅 每日獎勵 | 7 天連續登入遞增獎勵，中斷歸零 |
 | 🏆 等級 1–100 | XP 曲線 `80+lv×40`（滿級約 20 萬 XP），每 10 級換稱號，Lv100 = **多益之神** |
-| 👥 雲端帳號 | 註冊／登入／登出，跨裝置同步，密碼以 **scrypt 雜湊**保存 |
+| 👥 雲端帳號 | 註冊／登入／登出，**重新啟動不忘記登入**（token 持久），跨裝置同步，密碼以 **scrypt 雜湊**保存 |
+
+### 📚 題庫來源
+
+- **文法**：12 課 × 50 題 ＝ 600 題（原創，由簡單到困難）
+- **全真模擬考**：原創題庫 300+ 題（聽力 Part 1–4、閱讀 Part 5–7），風格參考 [Google Drive 多益題庫](https://drive.google.com/drive/folders/1JxKe0NmTtHyewLUCEEu6l1FXAqxk_zcW) 的 ETS 官方題型，**衍生更多商業與生活情境題**（原創內容，不複製版權試卷）
+- **12000 字表**：ECDICT 詞頻排序選字 ＋ Tatoeba 例句（含中文翻譯），每字至少 1 句
 
 ## ▶️ 本機執行（含帳號功能）
 
@@ -96,7 +104,7 @@ Render／Railway 的免費方案磁碟是**暫時性的（ephemeral）**，服�
 
 1. 用 Safari 開啟網址
 2. 點選底部 **分享按鈕 → 加入主畫面**
-3. 命名後確認，桌面即出現 TOEIC Quest 圖示
+3. 命名後確認，桌面即出現 English Quest 圖示
 
 > 正式給朋友使用時，把專案放到任意 HTTPS 空間（GitHub Pages、Netlify、Vercel 等）即可分享連結安裝。
 
@@ -110,7 +118,7 @@ npm init -y
 npm install @capacitor/core @capacitor/cli @capacitor/android @capacitor/ios
 
 # 2. 初始化（一開始的問題都按 Enter 使用預設值）
-npx cap init "TOEIC Quest" com.yourname.toeicquest --web-dir .
+npx cap init "English Quest" com.yourname.englishquest --web-dir .
 
 # 3. 加入平台
 npx cap add android
@@ -152,15 +160,19 @@ npx cap open ios       # 用 Xcode 開啟（需 macOS）
 
 ```
 學習多益的專案/
-├── index.html        # 遊戲主體（單檔前端）
-├── server.js         # Node.js 後端（靜態檔 + 帳號 + 存檔 API，零相依）
-├── package.json      # npm start → node server.js
-├── data/db.json      # 帳號資料庫（執行後自動建立）
-├── manifest.json     # PWA 設定
-├── sw.js             # Service Worker（離線快取 v2，API 不快取）
-├── icon.svg          # 向量圖示
-├── icon-180.png      # iOS 主畫面圖示
-├── icon-192.png      # PWA 圖示
-├── icon-512.png      # PWA 圖示 / 安裝畫面
+├── index.html             # 遊戲主體（單檔前端）
+├── server.js              # Node.js 後端（靜態檔 + 帳號 + 存檔 + UID 好友 API，零相依）
+├── package.json           # npm start → node server.js
+├── data/db.json           # 帳號資料庫（執行後自動建立，已 gitignore）
+├── content-grammar.js     # 文法題庫（12 課 × 50 題 ＝ 600 題）
+├── content-mock.js        # 模擬考題庫（聽力 130 ＋ 閱讀 130）
+├── content-mock-extra.js  # 商業／生活衍生題（聽力 29 ＋ 閱讀 50）
+├── words12k.js            # 12000 字表（意思＋音標＋例句，3.5MB 動態載入）
+├── manifest.json          # PWA 設定
+├── sw.js                  # Service Worker（離線快取 v3，API 不快取）
+├── icon.svg               # 向量圖示
+├── icon-180.png           # iOS 主畫面圖示
+├── icon-192.png           # PWA 圖示
+├── icon-512.png           # PWA 圖示 / 安裝畫面
 └── README.md
 ```

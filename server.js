@@ -1,5 +1,5 @@
 /* ============================================================
-   TOEIC Quest 多益冒險島 — 後端伺服器（零相依，Node.js ≥ 18）
+   English Quest 多益冒險島 — 後端伺服器（零相依，Node.js ≥ 18）
    ------------------------------------------------------------
    功能：
    1. 註冊 / 登入 / 登出（密碼以 scrypt 雜湊 + 隨機 salt 儲存，
@@ -45,20 +45,53 @@ const MIME = {
 MIME[".md"] = "text/markdown; charset=utf-8";
 
 /* ---------------- 資料儲存（JSON 檔，原子寫入） ---------------- */
-let db = { users: {}, states: {}, sessions: {} };
+let db = { users: {}, states: {}, sessions: {}, uidx: {}, social: {} };
 let dirty = false;
 let saveTimer = null;
+
+const UID_CHARS = "ABCDEFGHJKMNPQRSTUVWXYZ23456789"; // 去掉容易看錯的 I/L/O/0/1
+function newUid() {
+  let s = "";
+  const b = crypto.randomBytes(6);
+  for (let i = 0; i < 6; i++) s += UID_CHARS[b[i] % UID_CHARS.length];
+  return s;
+}
+/* 為每個帳號補上 UID（舊帳號升級用）並建立 UID 索引 */
+function ensureUids() {
+  db.uidx = db.uidx || {};
+  db.social = db.social || {};
+  let changed = false;
+  Object.keys(db.users).forEach(function (name) {
+    const rec = db.users[name];
+    if (!rec.uid || db.uidx[rec.uid] !== name) {
+      let u = newUid();
+      while (db.uidx[u] && db.uidx[u] !== name) u = newUid();
+      rec.uid = u;
+      db.uidx[u] = name;
+      changed = true;
+    }
+    if (!db.social[name] || !Array.isArray(db.social[name].friends)) {
+      db.social[name] = { friends: [] };
+      changed = true;
+    }
+  });
+  Object.keys(db.uidx).forEach(function (u) {
+    if (!db.users[db.uidx[u]]) { delete db.uidx[u]; changed = true; }
+  });
+  if (changed) saveDB();
+}
 
 function loadDB() {
   try {
     if (fs.existsSync(DB_FILE)) {
       const raw = JSON.parse(fs.readFileSync(DB_FILE, "utf8"));
-      db = Object.assign({ users: {}, states: {}, sessions: {} }, raw);
+      db = Object.assign({ users: {}, states: {}, sessions: {}, uidx: {}, social: {} }, raw);
+      ensureUids();
       console.log("[DB] 已載入 " + Object.keys(db.users).length + " 個帳號");
     }
   } catch (e) {
     console.error("[DB] 載入失敗，將使用空白資料：" + e.message);
-    db = { users: {}, states: {}, sessions: {} };
+    db = { users: {}, states: {}, sessions: {}, uidx: {}, social: {} };
   }
 }
 function flushDB() {
@@ -158,6 +191,27 @@ function clientIP(req) {
 }
 const NAME_RE = /^[A-Za-z0-9_一-鿿]+$/;
 
+/* ---------------- 好友系統（UID） ---------------- */
+function publicProfile(name) {
+  const s = (db.states && db.states[name]) || {};
+  const rec = (db.users && db.users[name]) || {};
+  if (!rec || !rec.uid) return null;
+  const lg = Array.isArray(s.logins) && s.logins.length ? s.logins[s.logins.length - 1] : "";
+  return {
+    uid: rec.uid, name: name,
+    xp: s.xp || 0, streak: s.streak || 0, lastClaim: s.lastClaim || "",
+    lastLogin: lg || s.lastClaim || "",
+    correct: s.correct || 0, total: s.total || 0, words: s.words || 0,
+    wins: s.wins || 0, battles: s.battles || 0, created: rec.created || 0
+  };
+}
+function findUserByUid(code) {
+  const c = String(code || "").trim().toUpperCase();
+  if (!/^[A-Z0-9]{6,8}$/.test(c)) return null;
+  const name = db.uidx && db.uidx[c];
+  return name && db.users[name] ? name : null;
+}
+
 /* ---------------- API ---------------- */
 async function handleAPI(req, res, pathname) {
   const ip = clientIP(req);
@@ -171,12 +225,18 @@ async function handleAPI(req, res, pathname) {
     if (!NAME_RE.test(u)) return json(res, 400, { err: "只能使用中英文、數字或底線" });
     if (p.length < 4) return json(res, 400, { err: "密碼至少 4 碼" });
     if (db.users[u]) return json(res, 409, { err: "這個使用者名稱已被註冊" });
-    db.users[u] = makeUser(p);
+    const rec = makeUser(p);
+    let uid = newUid();
+    while (db.uidx[uid]) uid = newUid();
+    rec.uid = uid;
+    db.uidx[uid] = u;
+    db.social[u] = { friends: [] };
+    db.users[u] = rec;
     const token = newToken();
     db.sessions[token] = { user: u, exp: Date.now() + SESSION_DAYS * 864e5 };
     saveDB();
-    console.log("[AUTH] 註冊：" + u + "（來自 " + ip + "）");
-    return json(res, 201, { token: token, user: u, state: db.states[u] || null });
+    console.log("[AUTH] 註冊：" + u + "（UID " + uid + "，來自 " + ip + "）");
+    return json(res, 201, { token: token, user: u, uid: uid, state: db.states[u] || null });
   }
 
   if (pathname === "/api/login" && req.method === "POST") {
@@ -205,7 +265,38 @@ async function handleAPI(req, res, pathname) {
   if (!user) return json(res, 401, { err: "登入已過期，請重新登入" });
 
   if (pathname === "/api/me" && req.method === "GET") {
-    return json(res, 200, { user: user });
+    return json(res, 200, { user: user, uid: (db.users[user] && db.users[user].uid) || "" });
+  }
+  /* ---- 好友 ---- */
+  if (pathname === "/api/social" && req.method === "GET") {
+    if (!db.social[user]) db.social[user] = { friends: [] };
+    const myUid = (db.users[user] && db.users[user].uid) || "";
+    const friends = db.social[user].friends.map(publicProfile).filter(Boolean);
+    return json(res, 200, { uid: myUid, friends: friends });
+  }
+  if (pathname === "/api/social/add" && req.method === "POST") {
+    let b; try { b = await readBody(req); } catch (e) { return json(res, 400, { err: "請求格式錯誤" }); }
+    const target = findUserByUid(b.code);
+    if (!target) return json(res, 404, { err: "找不到這個 UID（請確認 6 碼代號）" });
+    if (target === user) return json(res, 400, { err: "不能把自己加為好友" });
+    if (!db.social[user]) db.social[user] = { friends: [] };
+    const list = db.social[user].friends;
+    if (list.indexOf(target) >= 0) return json(res, 409, { err: "這位已經是好友了" });
+    if (list.length >= 100) return json(res, 400, { err: "好友上限 100 位" });
+    list.push(target);
+    saveDB();
+    console.log("[SOCIAL] " + user + " 加好友 " + target);
+    return json(res, 200, { ok: true, friend: publicProfile(target) });
+  }
+  if (pathname === "/api/social/remove" && req.method === "POST") {
+    let b; try { b = await readBody(req); } catch (e) { return json(res, 400, { err: "請求格式錯誤" }); }
+    const target = findUserByUid(b.code);
+    const list = (db.social[user] && db.social[user].friends) || [];
+    const i = target ? list.indexOf(target) : -1;
+    if (i < 0) return json(res, 404, { err: "這位不是你的好友" });
+    list.splice(i, 1);
+    saveDB();
+    return json(res, 200, { ok: true });
   }
   if (pathname === "/api/state" && req.method === "GET") {
     return json(res, 200, { state: db.states[user] || null });
@@ -271,7 +362,7 @@ const server = http.createServer(async function (req, res) {
 
 server.listen(PORT, "0.0.0.0", function () {
   console.log("==========================================");
-  console.log("  TOEIC Quest 伺服器已啟動");
+  console.log("  English Quest 伺服器已啟動");
   console.log("  本機：  http://localhost:" + PORT);
   console.log("  資料庫：" + DB_FILE);
   console.log("  按 Ctrl+C 結束");

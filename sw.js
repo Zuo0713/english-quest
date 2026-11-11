@@ -1,5 +1,5 @@
-/* TOEIC Quest Service Worker — 離線快取 v2 */
-const CACHE = "toeicquest-v2";
+/* English Quest Service Worker — 離線快取 v3 */
+const CACHE = "englishquest-v3";
 const ASSETS = [
   "./",
   "./index.html",
@@ -7,7 +7,10 @@ const ASSETS = [
   "./icon.svg",
   "./icon-180.png",
   "./icon-192.png",
-  "./icon-512.png"
+  "./icon-512.png",
+  "./content-grammar.js",
+  "./content-mock.js",
+  "./content-mock-extra.js"
 ];
 
 self.addEventListener("install", function (e) {

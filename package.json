@@ -1,7 +1,7 @@
 {
-  "name": "toeic-quest",
-  "version": "2.0.0",
-  "description": "TOEIC Quest 多益冒險島 — 遊戲化多益英文學習（含帳號雲端同步後端）",
+  "name": "english-quest",
+  "version": "3.0.0",
+  "description": "English Quest 多益冒險島 — 遊戲化多益英文學習（12000 字表、200 題模擬考、含帳號雲端同步後端）",
   "main": "server.js",
   "scripts": {
     "start": "node server.js"
