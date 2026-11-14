@@ -1048,49 +1048,76 @@ body{
 <script>
 "use strict";
 /* ================= 資料區 ================= */
+/* 字首 Prefix：判斷法＝「加在字根前面、只改意思不改詞性」
+   （依英文庫 root-prefix-suffix 與 NextSchool 多益字綴攻略重整） */
 const PREFIXES=[
- {a:"un-",m:"不、相反",ex:"unhappy 不快樂"},
- {a:"re-",m:"再、重新",ex:"rewrite 重寫"},
+ {a:"un-",m:"否定「不」、相反",ex:"unhappy 不快樂的"},
+ {a:"re-",m:"再次、往回",ex:"renew 更新"},
  {a:"dis-",m:"否定、分離",ex:"disagree 不同意"},
- {a:"pre-",m:"預先",ex:"preview 預覽"},
- {a:"mis-",m:"錯誤",ex:"mistake 錯誤"},
- {a:"inter-",m:"之間",ex:"international 國際的"},
- {a:"over-",m:"過度",ex:"overwork 工作過度"},
- {a:"under-",m:"不足、之下",ex:"understand 理解"},
- {a:"sub-",m:"次、下",ex:"subway 地鐵"},
+ {a:"non-",m:"無、沒有",ex:"nonsense 荒謬的"},
+ {a:"mis-",m:"錯誤",ex:"misuse 誤用"},
+ {a:"pre-",m:"在…之前、預先",ex:"preview 預習"},
+ {a:"post-",m:"在…之後",ex:"postpone 延期"},
+ {a:"fore-",m:"在…前面",ex:"forecast 預測"},
+ {a:"inter-",m:"在…之間",ex:"international 國際的"},
+ {a:"over-",m:"在…之上、過度",ex:"overestimate 高估"},
+ {a:"under-",m:"在…之下、不足",ex:"underestimate 低估"},
+ {a:"sub-",m:"在…之下、次要",ex:"subway 地鐵"},
+ {a:"super-",m:"在…之上、超越",ex:"supermarket 超級市場"},
  {a:"trans-",m:"跨越、轉換",ex:"transport 運輸"},
- {a:"ac-",m:"朝向、加強",ex:"accept 接受"},
- {a:"at-",m:"朝向",ex:"attract 吸引"},
- {a:"de-",m:"往下、去除",ex:"describe 描述"},
- {a:"di-",m:"分開",ex:"diverse 多樣的"},
  {a:"ex-",m:"向外",ex:"extract 提取"},
- {a:"im-",m:"往內、不（in- 變體）",ex:"impossible 不可能"},
- {a:"in-",m:"不、往內",ex:"invisible 看不見的"},
- {a:"per-",m:"徹底、完全",ex:"permission 允許"}
+ {a:"en-",m:"使變成、置入…之中",ex:"encourage 鼓勵"},
+ {a:"in-",m:"①否定「不」②往內（into）",ex:"invisible 看不見的"},
+ {a:"im-",m:"in- 變體：不／往內（b、m、p 前）",ex:"impossible 不可能"},
+ {a:"il-",m:"in- 變體：不（l 前）",ex:"illegal 非法的"},
+ {a:"ir-",m:"in- 變體：不（r 前）",ex:"irregular 不規則的"},
+ {a:"ac-",m:"朝向、加強（ad- 同化變體）",ex:"accept 接受"},
+ {a:"at-",m:"朝向（ad- 同化變體）",ex:"attract 吸引"},
+ {a:"de-",m:"向下、去除",ex:"depress 沮喪"},
+ {a:"di-",m:"分開（dis- 變體）",ex:"diverse 多樣的"},
+ {a:"ob-",m:"朝向、對抗",ex:"object 反對"},
+ {a:"contra-",m:"相反",ex:"contrast 對比"},
+ {a:"pro-",m:"向前、支持",ex:"progress 進步"},
+ {a:"con-",m:"一起（co-/com-/col- 變體）",ex:"concentrate 專心"},
+ {a:"per-",m:"穿越、徹底",ex:"permission 允許"},
+ {a:"anti-",m:"反對、相反",ex:"antiwar 反戰的"},
+ {a:"semi-",m:"一半",ex:"semicircle 半圓"},
+ {a:"multi-",m:"多",ex:"multimedia 多媒體"},
+ {a:"auto-",m:"自己、自動",ex:"automatic 自動的"},
+ {a:"extra-",m:"超過、以外",ex:"extraordinary 非凡的"},
+ {a:"tele-",m:"遠",ex:"telephone 電話"},
+ {a:"sym-",m:"共同（syn- 變體）",ex:"sympathy 同情"},
+ {a:"micro-",m:"小",ex:"microscope 顯微鏡"},
+ {a:"uni-",m:"一、單一",ex:"uniform 制服"}
 ];
+/* 字尾 Suffix：判斷法＝「加在字根後面、改詞性」（依兩網站字尾表重整，標明詞性） */
 const SUFFIXES=[
  {a:"-tion/-sion",m:"名詞：動作、過程",ex:"education 教育"},
  {a:"-ion",m:"名詞：動作、結果",ex:"prediction 預測"},
  {a:"-ation",m:"名詞：動作、狀態",ex:"information 資訊"},
- {a:"-ment",m:"名詞：結果、手段",ex:"agreement 同意"},
- {a:"-ness",m:"名詞：性質、狀態",ex:"kindness 仁慈"},
+ {a:"-ment",m:"名詞：行為的過程或結果",ex:"agreement 同意"},
+ {a:"-ness",m:"名詞：性質、狀態（抽象）",ex:"kindness 仁慈"},
  {a:"-er/-or",m:"名詞：人或物",ex:"teacher 老師"},
+ {a:"-ist",m:"名詞：從事…職業／研究的人",ex:"artist 藝術家"},
  {a:"-ee",m:"名詞：被…者",ex:"employee 員工"},
- {a:"-ence/-ance",m:"名詞：性質、狀態",ex:"importance 重要"},
- {a:"-ity",m:"名詞：性質、情況",ex:"ability 能力"},
+ {a:"-ence/-ance",m:"名詞：狀態、性質",ex:"importance 重要"},
+ {a:"-ity/-ty",m:"名詞：狀態、性質",ex:"ability 能力"},
+ {a:"-ship",m:"名詞：狀態、身分、關係",ex:"friendship 友誼"},
+ {a:"-ism",m:"名詞：主義、行為、學派",ex:"optimism 樂觀"},
+ {a:"-ure/-ture",m:"名詞：行為的狀態或結果",ex:"pressure 壓力"},
  {a:"-ful",m:"形容詞：充滿…的",ex:"helpful 有幫助的"},
  {a:"-less",m:"形容詞：沒有…的",ex:"careless 粗心的"},
- {a:"-able/-ible",m:"形容詞：可…的",ex:"readable 易讀的"},
- {a:"-ive",m:"形容詞：有…傾向的",ex:"active 積極的"},
- {a:"-ative/-itive/-ptive",m:"形容詞：具有…的",ex:"descriptive 描述性的"},
+ {a:"-able/-ible",m:"形容詞：能夠…的",ex:"readable 易讀的"},
+ {a:"-ive",m:"形容詞：有…性質的",ex:"active 積極的"},
  {a:"-al",m:"形容詞：…的",ex:"national 國家的"},
- {a:"-ous/-ious",m:"形容詞：多…的",ex:"famous 有名的"},
+ {a:"-ous/-ious",m:"形容詞：充滿…的",ex:"famous 有名的"},
  {a:"-ish",m:"形容詞：略帶…的",ex:"childish 幼稚的"},
- {a:"-ate",m:"動詞：使…；形容詞：…的",ex:"activate 啟動"},
+ {a:"-ate",m:"動詞：使變成；形容詞：有…性質的",ex:"activate 啟動"},
+ {a:"-en",m:"動詞：使變成；形容詞：由…製成",ex:"shorten 使變短"},
  {a:"-ize/-ise",m:"動詞：使…化",ex:"organize 組織"},
  {a:"-ify",m:"動詞：使…化",ex:"simplify 簡化"},
  {a:"-ly",m:"副詞：以…方式",ex:"quickly 快速地"},
- {a:"-e",m:"詞尾：無實義（湊音節）",ex:"diverse 多樣的"}
+ {a:"-ward",m:"形容詞／副詞：朝…方向",ex:"forward 向前"}
 ];
 const ROOTS=[
  {r:"spect",m:"看",w:[
@@ -1142,7 +1169,75 @@ const ROOTS=[
   {w:"receive",m:"收到",p:"re-",pm:"往回",r:"ceive"},
   {w:"concept",m:"概念",p:"con-",pm:"一起"},
   {w:"accept",m:"接受",p:"ac-",pm:"朝向"},
-  {w:"except",m:"除了",p:"ex-",pm:"除外"}]}
+  {w:"except",m:"除了",p:"ex-",pm:"除外"}]},
+ /* ↓ 依英文庫／NextSchool 字根表補齊（duc-duct、ced-ceed-cess、press、rupt、form、
+    cap-capt、vis-vid、tain、sist、struct、graph、phon、bio、geo） */
+ {r:"press",m:"壓",w:[
+  {w:"express",m:"表達；快車",p:"ex-",pm:"向外"},
+  {w:"depress",m:"使沮喪",p:"de-",pm:"往下"},
+  {w:"compress",m:"壓縮",p:"con-",pm:"一起"},
+  {w:"impress",m:"使印象深刻",p:"im-",pm:"往內"}]},
+ {r:"rupt",m:"破、斷",w:[
+  {w:"interrupt",m:"打斷",p:"inter-",pm:"之間"},
+  {w:"disrupt",m:"使中斷",p:"dis-",pm:"分開"},
+  {w:"bankrupt",m:"破產",p:"bank-",pm:"銀行"},
+  {w:"corrupt",m:"腐敗",p:"cor-",pm:"一起（con- 同化變體）"}]},
+ {r:"form",m:"形狀",w:[
+  {w:"perform",m:"表演、執行",p:"per-",pm:"徹底"},
+  {w:"reform",m:"改革",p:"re-",pm:"重新"},
+  {w:"uniform",m:"制服；統一的",p:"uni-",pm:"一"},
+  {w:"formal",m:"正式的",s:"-al",sm:"…的"}]},
+ {r:"duc",m:"引導",w:[
+  {w:"educate",m:"教育",p:"e-",pm:"向外（ex- 變體）",s:"-ate",sm:"使…"},
+  {w:"introduce",m:"介紹、引進",p:"intro-",pm:"向內",r:"duce",vn:"補上字尾 e"},
+  {w:"produce",m:"生產",p:"pro-",pm:"往前",r:"duce",vn:"補上字尾 e"},
+  {w:"reduce",m:"減少",p:"re-",pm:"往回",r:"duce",vn:"補上字尾 e"}]},
+ {r:"cess",m:"行走、前進",w:[
+  {w:"proceed",m:"繼續、進行",p:"pro-",pm:"往前",r:"ceed"},
+  {w:"succeed",m:"成功；接替",p:"suc-",pm:"由下而上（sub- 同化變體）",r:"ceed"},
+  {w:"access",m:"取得、進入",p:"ac-",pm:"朝向"},
+  {w:"recede",m:"後退",p:"re-",pm:"往回",r:"cede"}]},
+ {r:"vis",m:"看",w:[
+  {w:"visible",m:"看得見的",s:"-ible",sm:"可…的"},
+  {w:"invisible",m:"看不見的",p:"in-",pm:"不",s:"-ible",sm:"可…的"},
+  {w:"revise",m:"修訂",p:"re-",pm:"再、往回",r:"vise",vn:"補上字尾 e"},
+  {w:"supervise",m:"監督",p:"super-",pm:"在…之上",r:"vise",vn:"補上字尾 e"}]},
+ {r:"tain",m:"握、保持",w:[
+  {w:"contain",m:"包含",p:"con-",pm:"一起"},
+  {w:"obtain",m:"得到",p:"ob-",pm:"朝向"},
+  {w:"retain",m:"保留",p:"re-",pm:"往回"},
+  {w:"attain",m:"達成",p:"at-",pm:"朝向"}]},
+ {r:"sist",m:"站立、抵擋",w:[
+  {w:"assist",m:"幫助",p:"as-",pm:"朝向（ac- 變體）"},
+  {w:"insist",m:"堅持",p:"in-",pm:"往內"},
+  {w:"resist",m:"抵抗",p:"re-",pm:"往回"},
+  {w:"persist",m:"持續",p:"per-",pm:"徹底"}]},
+ {r:"struct",m:"建造",w:[
+  {w:"construct",m:"建造、建築",p:"con-",pm:"一起"},
+  {w:"instruct",m:"指導、指示",p:"in-",pm:"往內"},
+  {w:"obstruct",m:"阻礙",p:"ob-",pm:"朝向"},
+  {w:"structure",m:"結構、構造",s:"-ure",sm:"名詞"}]},
+ {r:"graph",m:"寫、畫",w:[
+  {w:"photograph",m:"照片",p:"photo-",pm:"光"},
+  {w:"paragraph",m:"段落",p:"para-",pm:"旁邊"},
+  {w:"graphic",m:"圖像的、圖表的",s:"-ic",sm:"…的"},
+  {w:"telegram",m:"電報",p:"tele-",pm:"遠",r:"gram",vn:"ph → m（同化）"}]},
+ {r:"cap",m:"頭、首要；拿取",w:[
+  {w:"capable",m:"有能力的",s:"-able",sm:"可…的"},
+  {w:"captive",m:"俘虜；被俘的",s:"-ive",sm:"…的"},
+  {w:"capture",m:"捕獲",r:"capt",vn:"字尾加 t（cap → capt）",s:"-ure",sm:"動作"},
+  {w:"capital",m:"首都；資本",r:"capit",vn:"補上音節 it（cap → capit）",s:"-al",sm:"…的"}]},
+ {r:"bio",m:"生命、生物",w:[
+  {w:"biology",m:"生物學",s:"-logy",sm:"…學"},
+  {w:"biography",m:"傳記",s:"-graphy",sm:"用文字記錄的一生"}]},
+ {r:"geo",m:"地、地球",w:[
+  {w:"geology",m:"地質學",s:"-logy",sm:"…學"},
+  {w:"geography",m:"地理學",s:"-graphy",sm:"…學"},
+  {w:"geometry",m:"幾何學",s:"-metry",sm:"…測量學"}]},
+ {r:"phon",m:"聲音",w:[
+  {w:"telephone",m:"電話",p:"tele-",pm:"遠",r:"phone",vn:"補上字尾 e"},
+  {w:"microphone",m:"麥克風",p:"micro-",pm:"小",r:"phone",vn:"補上字尾 e"},
+  {w:"symphony",m:"交響樂",p:"sym-",pm:"共同",r:"phony",vn:"補上字尾 y"}]}
 ];
 /*額外字根（拼字遊戲用） */
 /*字基補充表：只放「不是字綴」的字根型字基
@@ -1699,12 +1794,20 @@ function toast(msg,emoji){
   t.classList.add("show");
   clearTimeout(t._h);t._h=setTimeout(function(){t.classList.remove("show")},2400);
 }
-/* ===== 語音：Android/iOS 修復（手勢解鎖＋voices 非同步＋失敗重試） ===== */
-const SP={unlocked:false,pending:null,voices:[],loaded:false,noEn:false,hintTap:false,hintNoEn:false};
+/* ===== 語音：Android / iOS / HTTPS(Render) 修復 =====
+   策略：
+   ① 手勢解鎖（iOS 必需；Android 跳過「靜音 utterance」，避免 cancel 打斷引擎）
+   ② 每次播出都重新 getVoices（Android Chrome 拿到快取的舊 voice 物件會靜默無聲）
+   ③ 失敗先換「不指定 voice」策略重試，最多 3 次
+   ④ speak 後立刻 resume，破解 Android 引擎卡在 paused；700ms 沒開播就重試 */
+const SP={unlocked:false,pending:null,voices:[],loaded:false,noEn:false,hintTap:false,hintNoEn:false,hintFail:false,fails:0,ac:null};
+window.SP=SP;
+const SP_IOS=/iPhone|iPad|iPod/i.test(navigator.userAgent)||(navigator.platform==="MacIntel"&&navigator.maxTouchPoints>1);
+function spFresh(){try{return speechSynthesis.getVoices()||[]}catch(e){return[]}}
 function spLoadVoices(){
   if(!("speechSynthesis" in window))return;
   try{
-    const vs=speechSynthesis.getVoices()||[];
+    const vs=spFresh();
     if(vs.length){
       SP.voices=vs;SP.loaded=true;
       SP.noEn=!vs.some(function(x){return /^en/i.test(x.lang)});
@@ -1712,17 +1815,24 @@ function spLoadVoices(){
   }catch(e){}
 }
 function spVoice(){
-  const vs=SP.voices.length?SP.voices:(speechSynthesis.getVoices()||[]);
-  return vs.find(function(x){return /^en[-_]US/i.test(x.lang)})||vs.find(function(x){return /^en/i.test(x.lang)})||null;
+  /* 一定要用「新鮮」清單裡的 voice 物件，舊的會讓 Chrome Android 完全不出聲 */
+  const vs=spFresh();
+  const list=vs.length?vs:SP.voices;
+  if(!list.length)return null;
+  return list.find(function(x){return /^en[-_]US/i.test(x.lang)})||
+         list.find(function(x){return /^en/i.test(x.lang)})||null;
 }
 function spUnlock(){
   if(SP.unlocked)return;
   SP.unlocked=true;
-  try{ // 靜音 utterance：解除 iOS/Android 自動播放鎖
-    const s=new SpeechSynthesisUtterance(" ");
-    s.volume=0;s.rate=10;
-    speechSynthesis.speak(s);
-  }catch(e){}
+  if(SP_IOS){ // iOS 必須先發聲一次才解鎖；Android 這樣做反而常被 cancel 打成無聲
+    try{
+      const s=new SpeechSynthesisUtterance("ok");
+      s.volume=0;s.lang="en-US";
+      speechSynthesis.speak(s);
+    }catch(e){}
+  }
+  try{speechSynthesis.resume();}catch(e){}
   try{ // 同步解鎖 AudioContext（音效用）
     const AC=window.AudioContext||window.webkitAudioContext;
     if(AC){
@@ -1732,14 +1842,13 @@ function spUnlock(){
   }catch(e){}
   if(SP.pending!=null){const t=SP.pending;SP.pending=null;setTimeout(function(){spFire(t,0);},150);}
 }
-function spFire(text,att){
+function spFire(text,att,noVoice){
   try{speechSynthesis.cancel();}catch(e){}
   setTimeout(function(){ // Chrome Android：cancel() 後立即 speak 會無聲 → 間隔再播
     let done=false,started=false;
     const u=new SpeechSynthesisUtterance(text);
-    u.lang="en-US";u.rate=.92;
-    const v=spVoice();
-    if(v)u.voice=v;
+    u.lang="en-US";u.rate=.92;u.volume=1;
+    if(!noVoice){const v=spVoice();if(v)u.voice=v;}
     u.onstart=function(){started=true;};
     u.onend=function(){done=true;};
     u.onerror=function(ev){
@@ -1751,20 +1860,32 @@ function spFire(text,att){
         if(!SP.hintTap){SP.hintTap=true;toast("點一下畫面即可開啟語音 🔊","🔊");}
         return;
       }
-      if(att<2)setTimeout(function(){spFire(text,att+1);},250);
+      /* 其他錯誤 → 下一輪改用「不指定 voice」策略 */
+      if(att<3)setTimeout(function(){spFire(text,att+1,noVoice||att>=1);},250);
     };
     try{speechSynthesis.resume();}catch(e){}
     try{speechSynthesis.speak(u);}catch(e){
-      if(att<2)setTimeout(function(){spFire(text,att+1);},250);
+      if(att<3)setTimeout(function(){spFire(text,att+1,noVoice);},250);
       return;
     }
-    setTimeout(function(){ // 500ms 後完全沒開播 → 重試（最多 2 次）
-      if(done||started||att>=2)return;
+    setTimeout(function(){ // 部分 Android 引擎 speak 後卡在 paused → 立刻 resume
+      try{if(speechSynthesis.paused)speechSynthesis.resume();}catch(e){}
+    },60);
+    setTimeout(function(){ // 700ms 完全沒開播 → 換策略重試
+      if(done||started)return;
       let speaking=false;
       try{speaking=speechSynthesis.speaking;}catch(e){}
       if(speaking)return; // 實際有在播，只是 onstart 沒回報
-      spFire(text,att+1);
-    },500);
+      if(att>=3){ // 重試用完仍無聲 → 提示檢查裝置 TTS
+        SP.fails++;
+        if(SP.fails>=3&&!SP.hintFail){
+          SP.hintFail=true;
+          toast("聽不到聲音？請確認手機安裝了「Google 語音合成」英文語音，且未靜音","🔇");
+        }
+        return;
+      }
+      spFire(text,att+1,noVoice||att>=1);
+    },700);
   },80);
 }
 function speak(text){
@@ -2708,7 +2829,7 @@ function renderForge(){
   FG.sel={p:null,r:null,s:null};
   FG.done=false;
   let h='<div class="forge-score-bar"><span>第 '+(FG.i+1)+"/"+FG.rounds.length+' 題</span><span>🪙 '+FG.score+' 分</span><span class="combo">🔥 連擊 x'+FG.combo+"</span></div>";
-  h+='<div class="forge-target"><div class="forge-meaning">'+esc(w.m)+'</div><div class="forge-hint">選出正確的字首、字根、字尾組出單字（下方標示每個部件的意思）</div>'+(w.ph?'<div class="forge-hint" style="margin:-8px 0 4px;opacity:.8">'+esc(w.ph)+"</div>":"");
+  h+='<div class="forge-target"><div class="forge-meaning">'+esc(w.m)+'</div><div class="forge-hint">選出正確的字首、字根、字尾組出單字（字首改意思、字尾改詞性、字根是核心意思）</div>'+(w.ph?'<div class="forge-hint" style="margin:-8px 0 4px;opacity:.8">'+esc(w.ph)+"</div>":"");
   h+='<div class="forge-slots">';
   const slotArr=[];
   if(w.p)slotArr.push('<div class="forge-slot" id="slot-p"><span class="slot-label">字首 prefix</span><span class="slot-txt">?</span><span class="slot-mean">'+esc(partMean(w,"p")||"選出字首")+"</span></div>");
@@ -3202,7 +3323,7 @@ function renderRoot(){
     h+="</div>";
   });
   h+="</div></div>";
-  h+='<div class="mini-note">💡 同字根的單字一起記，效率提升 3 倍！每個部件下方都標示它的意思</div>';
+  h+='<div class="mini-note">🌳 字根＝有實質意義、可獨立成字的核心（連接時可能有拼字音變）。同字根的單字一起記，效率提升 3 倍！每個部件下方都標示它的意思</div>';
   $("w-root").innerHTML=h;
   document.querySelectorAll("#w-root .root-chip").forEach(function(b){
     b.onclick=function(){rootSel=parseInt(b.dataset.i,10);renderRoot()};
@@ -3222,7 +3343,16 @@ function extraRoots(){
   return out;
 }
 function renderRef(){
-  let h='<div class="ref-sec"><div class="ref-h">➕ 字首 Prefix（'+PREFIXES.length+" 種）</div>";
+  /* 判斷法（依英文庫 root-prefix-suffix、NextSchool 多益字綴攻略） */
+  let h='<div class="goal-box" style="text-align:left;margin-bottom:14px">'+
+    '<div class="goal-title">🧭 字首・字根・字尾判斷法</div>'+
+    '<div style="font-size:13.5px;line-height:1.95">'+
+    '<div>🌳 <b>字根 Root</b>：有實質意義、本身可獨立成字，決定單字的「核心意思」；和其他字連接時常因發音產生拼字音變（scrib→scrip、mit→miss、happy→happi）。</div>'+
+    '<div>➕ <b>字首 Prefix</b>：加在字根<b>前面</b>，<b>只改意思、不改詞性</b>（happy 快樂的 → unhappy 不快樂的，還是形容詞）。</div>'+
+    '<div>➕ <b>字尾 Suffix</b>：加在字根<b>後面</b>，<b>改詞性</b>（happy 形容詞 → happiness 名詞；quick → quickly 副詞）。</div>'+
+    '<div>🔍 <b>判斷順序</b>：先找有實義的核心（字根）→ 前面的是字首（改意思）→ 後面的是字尾（改詞性）。</div>'+
+    '</div></div>';
+  h+='<div class="ref-sec"><div class="ref-h">➕ 字首 Prefix（'+PREFIXES.length+" 種）</div>";
   PREFIXES.forEach(function(x,i){
     h+='<div class="ref-row" style="animation-delay:'+(i*.03)+'s"><span class="ref-affix">'+esc(x.a)+'</span><span class="ref-mean">'+esc(x.m)+'</span><span class="ref-ex">'+esc(x.ex)+'</span><button class="say-btn" data-w="'+esc(exWord(x.ex))+'" title="聽例字發音">🔊</button></div>';
   });
