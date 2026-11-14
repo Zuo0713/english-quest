@@ -1246,7 +1246,10 @@ const EXTRA_ROOT={
  nation:"國家",agree:"同意",believe:"相信",estimate:"估計",way:"道路",
  care:"關心",happy:"快樂",teach:"教",possible:"可能",vis:"看",
  create:"創造",produce:"產生",view:"看",organ:"器官、組織",understand:"理解",
- help:"幫助",verse:"轉",script:"寫"
+ help:"幫助",verse:"轉",script:"寫",
+ accept:"接受",attract:"吸引",predict:"預測",reject:"拒絕",extract:"提取",
+ transport:"運輸",import:"進口、輸入",disagree:"不同意",diverse:"多樣的",
+ respect:"尊重"
 };
 function affixMean(a){
   if(!a)return"";
@@ -1327,19 +1330,19 @@ function origHTML(w){
 }
 const WORD_CARDS=[
  {w:"international",p:"inter-",r:"nation",s:"-al",m:"國際的",e:"She works for an international company.",ph:"/ˌɪntərˈnæʃnəl/"},
- {w:"transportation",p:"trans-",r:"port",s:"-ation",m:"運輸、交通",e:"Public transportation is convenient here.",ph:"/ˌtrænspɔːrˈteɪʃn/"},
- {w:"prediction",p:"pre-",r:"dict",s:"-ion",m:"預測",e:"His prediction about the market was right.",ph:"/prɪˈdɪkʃn/"},
- {w:"disagreement",p:"dis-",r:"agree",s:"-ment",m:"意見不合",e:"They had a disagreement about the plan.",ph:"/ˌdɪsəˈɡriːmənt/"},
+ {w:"transportation",p:"",r:"transport",s:"-ation",m:"運輸、交通",e:"Public transportation is convenient here.",ph:"/ˌtrænspɔːrˈteɪʃn/"},
+ {w:"prediction",p:"",r:"predict",s:"-ion",m:"預測",e:"His prediction about the market was right.",ph:"/prɪˈdɪkʃn/"},
+ {w:"disagreement",p:"",r:"disagree",s:"-ment",m:"意見不合",e:"They had a disagreement about the plan.",ph:"/ˌdɪsəˈɡriːmənt/"},
  {w:"misunderstand",p:"mis-",r:"understand",s:"",m:"誤解",e:"Don't misunderstand my intention.",ph:"/ˌmɪsʌndərˈstænd/"},
  {w:"unbelievable",p:"un-",r:"believe",s:"-able",orig:{w:"believe",m:"相信"},m:"難以置信的",e:"The view from the top was unbelievable.",ph:"/ˌʌnbɪˈliːvəbl/"},
  {w:"overestimate",p:"over-",r:"estimate",s:"",m:"高估",e:"Don't overestimate the difficulty.",ph:"/ˌoʊvərˈestɪmeɪt/"},
  {w:"underestimate",p:"under-",r:"estimate",s:"",m:"低估",e:"Never underestimate your potential.",ph:"/ˌʌndərˈestɪmeɪt/"},
  {w:"subway",p:"sub-",r:"way",s:"",pm:"在…之下",m:"地鐵",e:"I take the subway to work every day.",ph:"/ˈsʌbweɪ/"},
- {w:"respectful",p:"re-",r:"spect",s:"-ful",m:"尊敬的",e:"Be respectful to your teachers.",ph:"/rɪˈspektfl/"},
+ {w:"respectful",p:"",r:"respect",s:"-ful",m:"尊敬的",e:"Be respectful to your teachers.",ph:"/rɪˈspektfl/"},
  {w:"descriptive",p:"de-",r:"script",s:"-ive",pm:"往下、加強",m:"描述性的",e:"She gave a descriptive report.",ph:"/dɪˈskrɪptɪv/"},
- {w:"acceptable",p:"ac-",r:"cept",s:"-able",m:"可接受的",e:"This price is acceptable to us.",ph:"/əkˈseptəbl/"},
+ {w:"acceptable",p:"",r:"accept",s:"-able",m:"可接受的",e:"This price is acceptable to us.",ph:"/əkˈseptəbl/"},
  {w:"creative",p:"",r:"create",s:"-ive",orig:{w:"create",m:"創造"},m:"有創造力的",e:"He is a creative designer.",ph:"/kriˈeɪtɪv/"},
- {w:"attractive",p:"at-",r:"tract",s:"-ive",m:"有吸引力的",e:"The job offer is very attractive.",ph:"/əˈtræktɪv/"},
+ {w:"attractive",p:"",r:"attract",s:"-ive",m:"有吸引力的",e:"The job offer is very attractive.",ph:"/əˈtræktɪv/"},
  {w:"diverse",p:"di-",r:"verse",s:"",m:"多樣的",e:"The city has a diverse culture.",ph:"/daɪˈvɜːrs/"},
  {w:"careless",p:"",r:"care",s:"-less",m:"粗心的",e:"A careless mistake cost us the game.",ph:"/ˈkerləs/"},
  {w:"helpful",p:"",r:"help",s:"-ful",m:"有幫助的",e:"Thank you for your helpful advice.",ph:"/ˈhelpfl/"},
@@ -1353,17 +1356,17 @@ const WORD_CARDS=[
  {w:"unhappy",p:"un-",r:"happy",s:"",m:"不快樂",e:"Don't be unhappy about small things.",ph:"/ʌnˈhæpi/"},
  {w:"understandable",p:"",r:"understand",s:"-able",m:"可理解的",e:"His anger is understandable.",ph:"/ˌʌndərˈstændəbl/"},
  {w:"careful",p:"",r:"care",s:"-ful",m:"小心的",e:"Be careful on the wet floor.",ph:"/ˈkerfl/"},
- {w:"predictable",p:"pre-",r:"dict",s:"-able",m:"可預測的",e:"The ending of the movie was predictable.",ph:"/prɪˈdɪktəbl/"},
- {w:"rejection",p:"re-",r:"ject",s:"-ion",pm:"往回",m:"拒絕",e:"The rejection letter was disappointing.",ph:"/rɪˈdʒekʃn/"},
+ {w:"predictable",p:"",r:"predict",s:"-able",m:"可預測的",e:"The ending of the movie was predictable.",ph:"/prɪˈdɪktəbl/"},
+ {w:"rejection",p:"",r:"reject",s:"-ion",m:"拒絕",e:"The rejection letter was disappointing.",ph:"/rɪˈdʒekʃn/"},
  {w:"subscription",p:"sub-",r:"script",s:"-ion",m:"訂閱",e:"My subscription expires next month.",ph:"/səbˈskrɪpʃn/"},
  {w:"transmission",p:"trans-",r:"mit",s:"-ion",m:"傳輸、傳送",e:"The transmission of the signal took seconds.",ph:"/trænˈsmɪʃn/"},
  {w:"incredible",p:"in-",r:"cred",s:"-ible",pm:"不",m:"難以置信的",e:"She did an incredible job on the project.",ph:"/ɪnˈkredəbl/"},
- {w:"extraction",p:"ex-",r:"tract",s:"-ion",m:"提取",e:"The extraction of the tooth was quick.",ph:"/ɪkˈstrækʃn/"},
- {w:"diversity",p:"di-",r:"vers",s:"-ity",m:"多樣性",e:"We value diversity in the workplace.",ph:"/daɪˈvɜːrsəti/"},
- {w:"acceptance",p:"ac-",r:"cept",s:"-ance",m:"接受",e:"She celebrated her acceptance to the university.",ph:"/əkˈseptəns/"},
+ {w:"extraction",p:"",r:"extract",s:"-ion",m:"提取",e:"The extraction of the tooth was quick.",ph:"/ɪkˈstrækʃn/"},
+ {w:"diversity",p:"",r:"diverse",s:"-ity",m:"多樣性",e:"We value diversity in the workplace.",ph:"/daɪˈvɜːrsəti/"},
+ {w:"acceptance",p:"",r:"accept",s:"-ance",m:"接受",e:"She celebrated her acceptance to the university.",ph:"/əkˈseptəns/"},
  {w:"description",p:"de-",r:"script",s:"-ion",pm:"往下、加強",m:"描述",e:"His description of the event was accurate.",ph:"/dɪˈskrɪpʃn/"},
  {w:"permission",p:"per-",r:"mit",s:"-ion",m:"允許",e:"You need permission to enter the lab.",ph:"/pəˈmɪʃn/"},
- {w:"importance",p:"im-",r:"port",s:"-ance",m:"重要",e:"The importance of sleep is often overlooked.",ph:"/ɪmˈpɔːrtəns/"}
+ {w:"importance",p:"",r:"import",s:"-ance",m:"重要",e:"The importance of sleep is often overlooked.",ph:"/ɪmˈpɔːrtəns/"}
 ];
 const TOEIC_Q=[
  {t:"listen",part:"Part 1",emoji:"👔 📋 ☕ 🏢",audio:"A man is giving a presentation to his colleagues.",q:"What is the man doing?",o:["Giving a presentation","Drinking coffee","Waiting for a bus","Filing reports"],a:0,zh:"一位男士正在向同事做簡報。",kw:["giving a presentation","colleagues"],why:"問題問男士正在做什麼，音檔原話是 giving a presentation（做簡報），直接對應選項 A；其他選項（喝咖啡、等公車、歸檔）音檔都沒提到。"},
@@ -3215,6 +3218,18 @@ function examEnd(){
 
 /* ---- 字根分組：同一個字根的單字放在一起背 ---- */
 let GRP=null;
+/* 單字卡的字基若是某字根組例字的同源形式（respect→spect、transport→port、
+   accept→cept…），就併回該字根組，分組才不會散掉 */
+function rootKeyOf(key){
+  if(!key)return"";
+  for(let i=0;i<ROOTS.length;i++){
+    const g=ROOTS[i];
+    if(g.r===key)return g.r;
+    const hit=(g.w||[]).some(function(w){return w.w===key||w.r===key});
+    if(hit)return g.r;
+  }
+  return key;
+}
 function rootGroups(){
   const map={};
   function put(key,mean,word){
@@ -3222,7 +3237,10 @@ function rootGroups(){
     if(!map[key])map[key]={root:key,mean:mean||affixMean(key)||"",words:[]};
     if(!map[key].words.some(function(x){return x.w===word.w}))map[key].words.push(word);
   }
-  WORD_CARDS.forEach(function(c){put(c.r,affixMean(c.r),c)});
+  WORD_CARDS.forEach(function(c){
+    const k=rootKeyOf(c.r);
+    put(k,affixMean(k)||affixMean(c.r),c);
+  });
   ROOTS.forEach(function(r){
     (r.w||[]).forEach(function(w){
       put(r.r,r.m,{w:w.w,m:w.m,e:w.e||"",ph:w.ph||"",p:"",r:r.r,s:""});
